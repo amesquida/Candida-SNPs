@@ -1,0 +1,97 @@
+
+
+configfile:
+    "config.json"
+
+SAMPLES = config['samples']
+DIRS = config['directories']
+    
+
+rule all:
+    input:
+        expand(config['data']+"/allsample.vcf"),
+	expand(config['data']+"/allsample_raw_snps.vcf"),
+	expand(config['data']+"/allsample_filtered_snps.vcf"),
+	expand(config['data']+"/allsample_final_snps.vcf")
+        
+
+rule CombineGVCFs:
+    input:
+        gvcfs=expand(config['data']+"/{dir}/{sample}_raw_variants.g.vcf", zip, dir=DIRS, sample=SAMPLES),
+        ref=config["genome"]
+        
+    output:
+        config['data']+"/allsample.g.vcf"
+        
+   
+   
+    run:
+        gvcfs=" --variant ".join(input.gvcfs),
+        shell("gatk CombineGVCFs -R {input.ref} --variant {gvcfs} -O {output}")
+
+
+
+
+rule Joint:
+    input:
+        allcombine=expand(config['data']+"/allsample.g.vcf"),
+        ref=config["genome"]
+        
+    output:
+        config['data']+"/allsample.vcf"
+       
+   
+    run:
+        shell("gatk GenotypeGVCFs -R {input.ref} -V {input.allcombine} -stand-call-conf 20 -O {output}")
+
+
+
+
+rule SelectSNPs:
+    input:
+        joint=expand(config['data']+"/allsample.vcf"),
+        ref=config["genome"]
+        
+    output:
+        config['data']+"/allsample_raw_snps.vcf"
+        
+   
+    run:
+        shell("gatk SelectVariants -R {input.ref} -V {input.joint} --select-type-to-include SNP -O {output}")
+
+
+
+
+rule Filtration:
+    input:
+        rawsnps=expand(config['data']+"/allsample_raw_snps.vcf"),
+        ref=config["genome"]
+    	
+   	
+    output:
+        config['data']+"/allsample_filtered_snps.vcf"
+        
+   
+    run:
+        shell("gatk VariantFiltration -R {input.ref} -V {input.rawsnps} -filter-name 'QD_filter' -filter 'QD < 2.0' -filter-name 'FS_filter' \
+	-filter 'FS > 1.5' -filter-name 'MQ_filter' -filter 'MQ < 40.0' -filter-name 'SOR_filter' -filter 'SOR > 1.5' -filter-name 'MQRankSum_filter' \
+	-filter 'MQRankSum < -2.0' -filter-name 'ReadPosRankSum_filter' -filter 'ReadPosRankSum < -2.0' -O {output}")
+	
+
+
+rule FinalSnps:
+    input:
+        filtered=expand(config['data']+"/allsample_filtered_snps.vcf"),
+        ref=config["genome"]
+        
+    output:
+        config['data']+"/allsample_final_snps.vcf"
+        
+   
+    run:
+        shell("gatk SelectVariants --exclude-filtered -V {input.filtered} -O {output}")
+
+
+
+
+
