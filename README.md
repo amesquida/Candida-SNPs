@@ -12,4 +12,7 @@ El pipeline tiene los siguientes pasos:
       5.2. Arhivos para hacer el arbol de SNPs con iTol.
   6. Hacer un archivo tanto con todos los directorios de las muestras (dir_tot) con el nombre de las muestras (ids_tot) en .txt
   7. Ejecujutar el script comparaciones.sh
-  8. Ejecutar el script matriz.sh
+  8. Ejecutar el script script_matriz.sh
+  9. Anotar los cambios de las combios dos a dos:
+      9.1. Extraer los cambios con extraccionTrue.sh en bash.
+      9.2. Anotar esos cambios con ann_True.sh
