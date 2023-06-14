@@ -1,0 +1,20 @@
+#Anotacion de SNPS
+
+java -jar /home/sergio/Escritorio/snpEff_latest_core/snpEff/snpEff.jar -no-downstream -no-upstream parapsilosis allsample_final_snps.vcf > snp_variants_ANN.vcf
+
+java -jar /home/sergio/Escritorio/snpEff_latest_core/snpEff/SnpSift.jar extractFields snp_variants_ANN.vcf CHROM POS REF ALT "ANN[*].ALLELE" "ANN[*].EFFECT" "ANN[*].IMPACT" "ANN[*].GENE" "ANN[*].FEATURE" "ANN[*].FEATUREID" "ANN[*].BIOTYPE" "ANN[*].RANK" "ANN[*].HGVS_C" "ANN[*].HGVS_P" "ANN[*].CDNA_POS" "ANN[*].CDNA_LEN" "ANN[*].CDS_POS" "ANN[*].CDS_LEN" "ANN[*].AA_POS" "ANN[*].AA_LEN" "ANN[*].DISTANCE" > snp_final_tab_ANN.txt
+
+
+
+
+#Arbol de SNPs
+#Transformar vcf en phy
+
+python /home/sergio/Escritorio/vcf2phylip-master/vcf2phylip.py -i allsample_final_snps.vcf -m #numero_MX -f
+
+
+#Hacer el arbol
+export PATH=$PATH:/home/sergio/Escritorio/standard-RAxML
+
+raxmlHPC-AVX -m GTRCAT -s allsample_final_snps.min60.phy -n dataset.tree -N 1000 -p 123456 -f a -x 123456
+
