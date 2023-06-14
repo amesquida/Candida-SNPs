@@ -16,3 +16,4 @@ El pipeline tiene los siguientes pasos:
   9. Anotar los cambios de las combios dos a dos:
       9.1. Extraer los cambios con extraccionTrue.sh en bash.
       9.2. Anotar esos cambios con ann_True.sh
+  10. Para ver los cambios con la secuencia de referecia, ejecurtar el script "count-cambios.sh"
